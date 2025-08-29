@@ -1,0 +1,166 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /cv-tool
+  tomcat:
+    threads:
+      max: 200
+      min-spare: 10
+
+spring:
+  application:
+    name: cv-deduplication-tool
+
+  datasource:
+    url: jdbc:h2:mem:cvtool
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+        format_sql: true
+        use_sql_comments: false
+        jdbc:
+          batch_size: 25
+        order_inserts: true
+        order_updates: true
+
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+  batch:
+    jdbc:
+      initialize-schema: always
+      schema: classpath:org/springframework/batch/core/schema-h2.sql
+
+    job:
+      enabled: false
+
+  sql:
+    init:
+      mode: always
+      platform: h2
+
+
+  security:
+    user:
+      name: admin
+      password: cvtool2025
+      roles: ADMIN
+
+  cache:
+    type: simple
+    cache-names: fuzzyMatches
+
+  task:
+    execution:
+      pool:
+        core-size: 8
+        max-size: 20
+        queue-capacity: 100
+        keep-alive: 60s
+
+cv:
+  # File Processing
+  processing:
+    max-file-size: 52428800 # 50MB
+    supported-formats: pdf,docx,doc,txt,rtf
+    batch-size: 10
+    max-concurrent-jobs: 5
+
+  keywords:
+    required: "java,spring"
+    optional: "aws,docker,microservices,kubernetes"
+    excluded: "intern,internship,fresher,student"
+
+  matching:
+    mode: "AND" # AND, OR, WEIGHTED
+    threshold: 70 # For weighted matching
+
+  duplicate:
+    threshold:
+      exact: 95
+      fuzzy: 85
+      partial: 75
+    cache-duration: 3600 # seconds
+
+  directories:
+    input: "./data/input"
+    output: "./data/output"
+    shortlisted: "./data/output/shortlisted"
+    duplicates: "./data/output/duplicates"
+    others: "./data/output/others"
+
+# Monitoring and Management
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus,batch
+  endpoint:
+    health:
+      show-details: always
+    metrics:
+      enabled: true
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+    tags:
+      application: cv-deduplication-tool
+
+
+
+# Logging Configuration
+logging:
+  level:
+    com.raketman.cvtool: INFO
+    org.springframework.batch: WARN
+    org.hibernate.SQL: WARN
+    org.apache.tika: WARN
+  pattern:
+    file: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+    console: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: logs/cv-tool.log
+    max-size: 100MB
+    max-history: 30
+
+
+skills:
+  categories:
+    java: [java, jvm, java8, java11, java17, java21, openjdk]
+    python: [python, python3, django, flask, pandas, numpy]
+    javascript: [javascript, js, node.js, nodejs, typescript, ts]
+    c#: [c#, csharp, dotnet, .net, asp.net]
+    go: [golang, go]
+
+    spring: [spring, spring boot, springboot, spring mvc, spring data, spring boot 2.x, spring boot 3.x]
+    react: [react, react.js, reactjs, react native]
+    angular: [angular, angularjs, angular2+]
+    vue: [vue, vue.js, vuejs]
+
+    sql: [sql, mysql, postgresql, oracle, mssql, sqlite]
+    nosql: [mongodb, cassandra, redis, elasticsearch, dynamodb]
+
+    aws: [aws, amazon web services, ec2, s3, lambda, cloudformation]
+    docker: [docker, containerization, kubernetes, k8s]
+    jenkins: [jenkins, ci/cd, continuous integration, continuous deployment]
+
+    microservices: [microservices, microservice, micro-services]
+    api: [rest api, restful, rest, api, web services, graphql]
+    git: [git, github, gitlab, version control]
